@@ -1,4 +1,5 @@
 # IP-LOC
+![Logo](https://raw.githubusercontent.com/wanzxploit/IP-LOC/refs/heads/main/logo.png)
 
 **IP-LOC** adalah tools sederhana yang digunakan untuk melacak informasi lokasi berdasarkan alamat IP. Tools ini dibuat menggunakan Python dan hanya memerlukan dependensi minimal.
 
@@ -49,30 +50,6 @@ Setelah semua dependensi terinstal, jalankan tools dengan perintah berikut:
 
 ```bash
 python main.py
-```
-
-## Contoh Output
-
-```text
-Masukkan IP yang ingin dilacak: 112.215.221.187
-
-╔════════════════════════════════════════════╗
-║            HASIL PELACAKAN IP              ║
-╚════════════════════════════════════════════╝
-
-KATEGORI      INFORMASI
------------------------------------------------
- IP                  112.215.221.187
- Negara              ID
- Provinsi            Bali
- Kota/Kabupaten      Denpasar
- Hostname            N/A
- ISP                 AS24203 PT XL Axiata
- Timezone            Asia/Makassar
- Lokasi Geografis    -8.6500,115.2167
------------------------------------------------
-
-Tools IP-LOC By Wanz Xploit.
 ```
 
 ## Catatan
