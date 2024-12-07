@@ -1,61 +1,88 @@
 # IP-LOC
 
-Tools sederhana untuk melacak informasi lokasi berdasarkan IP address. Dibuat untuk tujuan edukasi dan meningkatkan kesadaran tentang pentingnya menjaga privasi online.
+**IP-LOC** adalah tools sederhana yang digunakan untuk melacak informasi lokasi berdasarkan alamat IP. Tools ini dibuat menggunakan Python dan hanya memerlukan dependensi minimal.
 
----
+## Fitur
 
-## Cara Install dan Menjalankan di Termux
+- Mendapatkan informasi lokasi berdasarkan IP, termasuk:
+  - Negara, Provinsi, Kota/Kabupaten
+  - Hostname, ISP
+  - Zona Waktu, Lokasi Geografis (Latitude & Longitude)
+- Tampilan terminal dengan warna yang menarik.
+- Bersifat ringan dan mudah digunakan.
 
-### 1. Update dan Install Dependencies
-Pastikan Termux Anda sudah di-update dan memiliki dependencies yang diperlukan.
+## Cara Install di Termux
+
+Ikuti langkah-langkah berikut untuk menginstal dan menjalankan **IP-LOC** di Termux:
+
+### 1. Update dan Install Python
 
 ```bash
 pkg update && pkg upgrade -y
-pkg install python git -y
+pkg install python -y
 ```
 
-### 2. Clone Repository
-Clone repository IP-LOC ke perangkat Anda.
+### 2. Install Git
+
+```bash
+pkg install git -y
+```
+
+### 3. Clone Repositori
 
 ```bash
 git clone https://github.com/wanzxploit/IP-LOC.git
 cd IP-LOC
 ```
 
-### 3. Install Requirements
-Instal library Python yang diperlukan.
+### 4. Install Dependensi
 
-```bash
-pip install -r requirements.txt
-```
-
-Jika file `requirements.txt` tidak tersedia, Anda dapat langsung menginstal library `requests`:
+Tools ini membutuhkan library `requests`. Install dengan perintah:
 
 ```bash
 pip install requests
 ```
 
-### 4. Jalankan Tools
-Jalankan tools menggunakan perintah berikut:
+### 5. Jalankan Tools
+
+Setelah semua dependensi terinstal, jalankan tools dengan perintah berikut:
 
 ```bash
 python main.py
 ```
 
----
+## Contoh Output
 
-## Cara Menggunakan
-1. Masukkan IP address yang ingin dilacak saat diminta.
-2. Tunggu hasil pelacakan yang akan ditampilkan dalam bentuk tabel.
+```text
+Masukkan IP yang ingin dilacak: 112.215.221.187
 
----
+╔════════════════════════════════════════════╗
+║            HASIL PELACAKAN IP              ║
+╚════════════════════════════════════════════╝
 
-## Disclaimer
-Tools ini dibuat hanya untuk tujuan edukasi. Segala bentuk penyalahgunaan menjadi tanggung jawab pengguna.
+KATEGORI      INFORMASI
+-----------------------------------------------
+ IP                  112.215.221.187
+ Negara              ID
+ Provinsi            Bali
+ Kota/Kabupaten      Denpasar
+ Hostname            N/A
+ ISP                 AS24203 PT XL Axiata
+ Timezone            Asia/Makassar
+ Lokasi Geografis    -8.6500,115.2167
+-----------------------------------------------
 
----
+Tools IP-LOC By Wanz Xploit.
+```
+
+## Catatan
+- Pastikan koneksi internet aktif saat menggunakan tools ini.
+- Tools ini hanya untuk tujuan edukasi. Gunakan secara bertanggung jawab.
 
 ## Sosial Media
-- **Github**: [https://github.com/wanzxploit](https://github.com/wanzxploit)
+- **GitHub**: [https://github.com/wanzxploit](https://github.com/wanzxploit)
 - **Instagram**: [https://instagram.com/wanz_xploit](https://instagram.com/wanz_xploit)
 - **YouTube**: [https://youtube.com/wanzxploit](https://youtube.com/wanzxploit)
+
+---
+Dibuat dengan ❤️ oleh **Wanz Xploit**.
