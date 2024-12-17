@@ -1,126 +1,169 @@
 import requests
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table, box
+from rich.progress import Progress
 import time
 import sys
 import os
+import re
 
-# Warna ANSI untuk teks di terminal
-COLORS = {
-    "HEADER": "\033[95m",
-    "OKBLUE": "\033[94m",
-    "OKCYAN": "\033[96m",
-    "OKGREEN": "\033[92m",
-    "WARNING": "\033[93m",
-    "FAIL": "\033[91m",
-    "ENDC": "\033[0m",
-    "BOLD": "\033[1m",
-    "UNDERLINE": "\033[4m",
-    "WHITE": "\033[97m",
-    "GREY": "\033[90m",
-}
+console = Console()
 
-# API Key untuk ipinfo.io
-IPINFO_API_KEY = "8b72e48f3c346a"  # Pastikan API Key ini valid
+class IPLocationTracker:
+    def __init__(self):
+        self.api_key = "8b72e48f3c346a"
 
-# Fungsi untuk membersihkan layar terminal
-def clear():
-    os.system('cls' if os.name == 'nt' else 'clear')
+    def clear_screen(self):
+        os.system('cls' if os.name == 'nt' else 'clear')
 
-# Fungsi untuk menampilkan banner awal
-def show_banner():
-    banner = f"""{COLORS['OKGREEN']}\n
-██╗██████╗       ██╗      ██████╗  ██████╗
-██║██╔══██╗      ██║     ██╔═══██╗██╔════╝
-██║██████╔╝█████╗██║     ██║   ██║██║     
-██║██╔═══╝ ╚════╝██║     ██║   ██║██║     
-██║██║           ███████╗╚██████╔╝╚██████╗
-╚═╝╚═╝           ╚══════╝ ╚═════╝  ╚═════╝
-                                           
-{COLORS['ENDC']}"""
+    def show_banner(self):
+        banner = """
+ ██╗██████╗      ██╗      ██████╗  ██████╗
+ ██║██╔══██╗     ██║     ██╔═══██╗██╔════╝
+ ██║██████╔╝     ██║     ██║   ██║██║     
+ ██║██╔═══╝      ██║     ██║   ██║██║     
+ ██║██║          ███████╗╚██████╔╝╚██████╗
+ ╚═╝╚═╝          ╚══════╝ ╚═════╝  ╚═════╝
+        """
+        
+        console.print(Panel(
+            banner, 
+            title="[bold green]Advanced IP Location Tracker[/]", 
+            border_style="green",
+            expand=False
+        ))
 
-    # Media sosial dalam format tabel
-    info = f"""{COLORS['OKCYAN']}
-╔══════════════════════════════════════════════╗
-║ Github   : https://github.com/wanzxploit     ║
-║ Instagram: https://instagram.com/wanz_xploit ║
-║ YouTube  : https://youtube.com/wanzxploit    ║
-╚══════════════════════════════════════════════╝
-{COLORS['ENDC']}"""
+        social_links = [
+            ("Github", "https://github.com/wanzxploit"),
+            ("Instagram", "https://instagram.com/wanz_xploit"),
+            ("YouTube", "https://youtube.com/wanzxploit")
+        ]
 
-    print(banner)
-    print(info)
-    print("\n")
+        social_table = Table(show_header=False, box=None, padding=(0, 1))
+        for platform, link in social_links:
+            social_table.add_row(f"[green]{platform}[/]", f"[white]{link}[/]")
+        
+        console.print(Panel(
+            social_table, 
+            title="[bold green]Social Media[/]", 
+            border_style="green",
+            expand=False
+        ))
 
-# Fungsi untuk mendapatkan data IP dari ipinfo.io
-def get_ip_info(ip):
+    def validate_ip(self, ip):
+        ip_pattern = r'^(\d{1,3}\.){3}\d{1,3}$'
+        return bool(re.match(ip_pattern, ip or ''))
+
+    def get_ip_info(self, ip):
+        if not ip or not self.validate_ip(ip):
+            console.print("[bold red]Invalid IP address format![/]")
+            return None
+
+        try:
+            url = f"https://ipinfo.io/{ip}?token={self.api_key}"
+            response = requests.get(url)
+            data = response.json()
+
+            if 'error' in data:
+                console.print(f"[bold red]API Error: {data['error']['title']}[/]")
+                return None
+
+            # Convert country code to full name if possible
+            country_code = data.get('country', 'N/A')
+            if country_code == 'ID':
+                country_name = "Indonesia"
+            elif country_code == 'US':
+                country_name = "United States"
+            elif country_code == 'GB':
+                country_name = "United Kingdom"
+            else:
+                country_name = country_code
+
+            data['country'] = country_name
+
+            return data
+        except requests.RequestException as e:
+            console.print(f"[bold red]Network Error: {e}[/]")
+            return None
+        except ValueError as e:
+            console.print(f"[bold red]Data Processing Error: {e}[/]")
+            return None
+
+    def display_ip_info(self, ip_data):
+        if not ip_data:
+            return
+
+        table = Table(
+            show_header=True, 
+            header_style="bold green",
+            border_style="green",
+            box=box.ROUNDED,
+            padding=(0, 1)
+        )
+        
+        table.add_column("Category", style="green", no_wrap=True)
+        table.add_column("Information", style="white")
+
+        details = [
+            ("IP Address", ip_data.get('ip', 'N/A')),
+            ("Country", ip_data.get('country', 'N/A')),
+            ("Region", ip_data.get('region', 'N/A')),
+            ("City", ip_data.get('city', 'N/A')),
+            ("Hostname", ip_data.get('hostname', 'N/A')),
+            ("Internet Provider", ip_data.get('org', 'N/A')),
+            ("Timezone", ip_data.get('timezone', 'N/A')),
+            ("Geographical Location", ip_data.get('loc', 'N/A'))
+        ]
+
+        for category, info in details:
+            table.add_row(category, str(info))
+
+        console.print(Panel(
+            table, 
+            title="[bold green]IP Location Details[/]", 
+            border_style="green", 
+            expand=False
+        ))
+
+    def main(self):
+        self.clear_screen()
+        self.show_banner()
+
+        try:
+            ip = console.input("[bold green]Enter IP to track: [/]").strip()
+            
+            with Progress(console=console) as progress:
+                task = progress.add_task("[green]Tracking IP...", total=100)
+                for _ in range(100):
+                    progress.update(task, advance=1)
+                    time.sleep(0.02)
+
+            ip_data = self.get_ip_info(ip)
+            
+            if ip_data:
+                self.display_ip_info(ip_data)
+            
+            console.print(
+                Panel(
+                    "[bold green]IP Location Tracker by Wanz Xploit[/]", 
+                    border_style="green", 
+                    expand=False
+                )
+            )
+
+        except KeyboardInterrupt:
+            console.print("\n[bold red]Tracking stopped by user.[/]")
+        except Exception as e:
+            console.print(f"[bold red]Unexpected error: {type(e).__name__} - {e}[/]")
+
+def main_entry():
     try:
-        url = f"https://ipinfo.io/{ip}?token={IPINFO_API_KEY}"
-        response = requests.get(url)
-        ip_data = response.json()
-
-        if "error" in ip_data:
-            return f"Error: {ip_data['error']}"
-
-        return ip_data
+        tracker = IPLocationTracker()
+        tracker.main()
     except Exception as e:
-        return f"Error: Gagal mengambil data IP. Detail: {str(e)}"
-
-# Fungsi untuk mencetak hasil IP dengan format tabel
-def print_ip_info(ip_data):
-    print(f"{COLORS['OKBLUE']}╔════════════════════════════════════════════╗")
-    print(f"║            HASIL PELACAKAN IP              ║")
-    print(f"╚════════════════════════════════════════════╝{COLORS['ENDC']}")
-
-    print(f"{COLORS['OKCYAN']}KATEGORI{' ' * 6}INFORMASI")
-    print(f"{COLORS['OKCYAN']}-----------------------------------------------{COLORS['ENDC']}")
-
-    # Menyusun tabel dengan format sederhana
-    table = f"""
- IP                  {COLORS['OKGREEN']}{ip_data.get('ip', 'N/A')}{COLORS['ENDC']}
- Negara              {COLORS['OKGREEN']}{ip_data.get('country', 'N/A')}{COLORS['ENDC']}
- Provinsi            {COLORS['OKGREEN']}{ip_data.get('region', 'N/A')}{COLORS['ENDC']}
- Kota/Kabupaten      {COLORS['OKGREEN']}{ip_data.get('city', 'N/A')}{COLORS['ENDC']}
- Hostname            {COLORS['OKGREEN']}{ip_data.get('hostname', 'N/A')}{COLORS['ENDC']}
- ISP                 {COLORS['OKGREEN']}{ip_data.get('org', 'N/A')}{COLORS['ENDC']}
- Timezone            {COLORS['OKGREEN']}{ip_data.get('timezone', 'N/A')}{COLORS['ENDC']}
- Lokasi Geografis    {COLORS['OKGREEN']}{ip_data.get('loc', 'N/A')}{COLORS['ENDC']}
-    """
-    print(f"{COLORS['WHITE']}{table}{COLORS['ENDC']}")
-    print(f"{COLORS['OKCYAN']}-----------------------------------------------{COLORS['ENDC']}")
-
-# Fungsi untuk menampilkan animasi loading
-def loading_animation():
-    animation = ["|", "/", "-", "\\"]
-    for _ in range(10):  # Ulangi animasi 10 kali
-        for frame in animation:
-            sys.stdout.write(f"\r{COLORS['GREY']} Melacak IP... {frame}{COLORS['ENDC']}")
-            sys.stdout.flush()
-            time.sleep(0.1)
-    print()
-
-# Fungsi utama untuk menjalankan program
-def main():
-    # Membersihkan layar terminal sebelum menjalankan program
-    clear()
-
-    # Menampilkan banner awal
-    show_banner()
-
-    # Meminta pengguna memasukkan IP
-    ip = input(f"{COLORS['OKCYAN']}{COLORS['BOLD']}Masukkan IP yang ingin dilacak: {COLORS['ENDC']}").strip()
-    print("\n")
-
-    # Menampilkan animasi loading
-    loading_animation()
-
-    # Ambil informasi IP dan tampilkan hasil
-    ip_data = get_ip_info(ip)
-    if isinstance(ip_data, dict):
-        print_ip_info(ip_data)
-    else:
-        print(f"{COLORS['FAIL']}{ip_data}{COLORS['ENDC']}")
-    
-    print(f"{COLORS['OKGREEN']} Tools IP-LOC By Wanz Xploit.{COLORS['ENDC']}")
-    print("\n")
+        print(f"Critical error: {type(e).__name__} - {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    main()
+    main_entry()
