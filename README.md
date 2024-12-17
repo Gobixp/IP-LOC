@@ -1,4 +1,4 @@
-# 🌐 IP-LOC: Geolocation Intelligence Tracker
+# 🌐 IP-LOC: TRACK IP LOCATION.
 
 ![GitHub stars](https://img.shields.io/github/stars/wanzxploit/IP-LOC?style=social)
 ![Version](https://img.shields.io/badge/version-1.5-brightgreen)
