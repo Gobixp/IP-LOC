@@ -1,5 +1,7 @@
 # 🌐 IP-LOC: TRACK IP LOCATION.
 
+![IP-LOC Banner](https://raw.githubusercontent.com/wanzxploit/IP-LOC/refs/heads/main/banner.png)
+
 ![GitHub stars](https://img.shields.io/github/stars/wanzxploit/IP-LOC?style=social)
 ![Version](https://img.shields.io/badge/version-1.5-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.7+-blue)
