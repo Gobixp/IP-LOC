@@ -1,5 +1,5 @@
 # IP-LOC
-![Logo](https://raw.githubusercontent.com/wanzxploit/IP-LOC/refs/heads/main/logo.png)
+![Logo](https://raw.githubusercontent.com/wanzxploit/IP-LOC/refs/heads/main/banner.png)
 
 **IP-LOC** adalah tools sederhana yang digunakan untuk melacak informasi lokasi berdasarkan alamat IP. Tools ini dibuat menggunakan Python dan hanya memerlukan dependensi minimal.
 
