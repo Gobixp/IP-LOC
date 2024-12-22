@@ -1,169 +1,143 @@
+from flask import Flask, request, send_from_directory
 import requests
 from rich.console import Console
+from rich.table import Table
 from rich.panel import Panel
-from rich.table import Table, box
-from rich.progress import Progress
-import time
-import sys
+from rich.align import Align
+from rich.text import Text
+import logging
+import pycountry
 import os
-import re
+from datetime import datetime
 
+app = Flask(__name__)
 console = Console()
 
-class IPLocationTracker:
-    def __init__(self):
-        self.api_key = "8b72e48f3c346a"
+log = logging.getLogger('werkzeug')
+log.disabled = True
 
-    def clear_screen(self):
-        os.system('cls' if os.name == 'nt' else 'clear')
+API_KEY = "8b72e48f3c346a"
 
-    def show_banner(self):
-        banner = """
- ██╗██████╗      ██╗      ██████╗  ██████╗
- ██║██╔══██╗     ██║     ██╔═══██╗██╔════╝
- ██║██████╔╝     ██║     ██║   ██║██║     
- ██║██╔═══╝      ██║     ██║   ██║██║     
- ██║██║          ███████╗╚██████╔╝╚██████╗
- ╚═╝╚═╝          ╚══════╝ ╚═════╝  ╚═════╝
-        """
-        
-        console.print(Panel(
-            banner, 
-            title="[bold green]Advanced IP Location Tracker[/]", 
-            border_style="green",
-            expand=False
-        ))
+def clear_screen():
+    os.system('cls' if os.name == 'nt' else 'clear')
 
-        social_links = [
-            ("Github", "https://github.com/wanzxploit"),
-            ("Instagram", "https://instagram.com/wanz_xploit"),
-            ("YouTube", "https://youtube.com/wanzxploit")
-        ]
+def create_styled_table() -> Table:
+    table = Table(
+        show_header=True,
+        header_style="bold white on rgb(50,50,50)",
+        border_style="rgb(50,50,50)",
+        expand=True
+    )
+    table.add_column("Category", style="cyan", width=20)
+    table.add_column("Details", style="green")
+    return table
 
-        social_table = Table(show_header=False, box=None, padding=(0, 1))
-        for platform, link in social_links:
-            social_table.add_row(f"[green]{platform}[/]", f"[white]{link}[/]")
-        
-        console.print(Panel(
-            social_table, 
-            title="[bold green]Social Media[/]", 
-            border_style="green",
-            expand=False
-        ))
-
-    def validate_ip(self, ip):
-        ip_pattern = r'^(\d{1,3}\.){3}\d{1,3}$'
-        return bool(re.match(ip_pattern, ip or ''))
-
-    def get_ip_info(self, ip):
-        if not ip or not self.validate_ip(ip):
-            console.print("[bold red]Invalid IP address format![/]")
-            return None
-
-        try:
-            url = f"https://ipinfo.io/{ip}?token={self.api_key}"
-            response = requests.get(url)
-            data = response.json()
-
-            if 'error' in data:
-                console.print(f"[bold red]API Error: {data['error']['title']}[/]")
-                return None
-
-            # Convert country code to full name if possible
-            country_code = data.get('country', 'N/A')
-            if country_code == 'ID':
-                country_name = "Indonesia"
-            elif country_code == 'US':
-                country_name = "United States"
-            elif country_code == 'GB':
-                country_name = "United Kingdom"
-            else:
-                country_name = country_code
-
-            data['country'] = country_name
-
-            return data
-        except requests.RequestException as e:
-            console.print(f"[bold red]Network Error: {e}[/]")
-            return None
-        except ValueError as e:
-            console.print(f"[bold red]Data Processing Error: {e}[/]")
-            return None
-
-    def display_ip_info(self, ip_data):
-        if not ip_data:
-            return
-
-        table = Table(
-            show_header=True, 
-            header_style="bold green",
-            border_style="green",
-            box=box.ROUNDED,
-            padding=(0, 1)
-        )
-        
-        table.add_column("Category", style="green", no_wrap=True)
-        table.add_column("Information", style="white")
-
-        details = [
-            ("IP Address", ip_data.get('ip', 'N/A')),
-            ("Country", ip_data.get('country', 'N/A')),
-            ("Region", ip_data.get('region', 'N/A')),
-            ("City", ip_data.get('city', 'N/A')),
-            ("Hostname", ip_data.get('hostname', 'N/A')),
-            ("Internet Provider", ip_data.get('org', 'N/A')),
-            ("Timezone", ip_data.get('timezone', 'N/A')),
-            ("Geographical Location", ip_data.get('loc', 'N/A'))
-        ]
-
-        for category, info in details:
-            table.add_row(category, str(info))
-
-        console.print(Panel(
-            table, 
-            title="[bold green]IP Location Details[/]", 
-            border_style="green", 
-            expand=False
-        ))
-
-    def main(self):
-        self.clear_screen()
-        self.show_banner()
-
-        try:
-            ip = console.input("[bold green]Enter IP to track: [/]").strip()
-            
-            with Progress(console=console) as progress:
-                task = progress.add_task("[green]Tracking IP...", total=100)
-                for _ in range(100):
-                    progress.update(task, advance=1)
-                    time.sleep(0.02)
-
-            ip_data = self.get_ip_info(ip)
-            
-            if ip_data:
-                self.display_ip_info(ip_data)
-            
-            console.print(
-                Panel(
-                    "[bold green]IP Location Tracker by Wanz Xploit[/]", 
-                    border_style="green", 
-                    expand=False
-                )
-            )
-
-        except KeyboardInterrupt:
-            console.print("\n[bold red]Tracking stopped by user.[/]")
-        except Exception as e:
-            console.print(f"[bold red]Unexpected error: {type(e).__name__} - {e}[/]")
-
-def main_entry():
+def get_country_name(country_code):
     try:
-        tracker = IPLocationTracker()
-        tracker.main()
+        country = pycountry.countries.get(alpha_2=country_code)
+        return country.name if country else country_code
     except Exception as e:
-        print(f"Critical error: {type(e).__name__} - {e}")
-        sys.exit(1)
+        return f"Error: {str(e)}"
 
-if __name__ == "__main__":
-    main_entry()
+def get_ip_info(ip):
+    url = f"https://ipinfo.io/{ip}?token={API_KEY}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        if 'country' in data:
+            data['country'] = get_country_name(data['country'])
+        return data
+    return {"error": "Unable to fetch IP information"}
+
+def create_header(title: str) -> Panel:
+    grid = Table.grid(expand=True)
+    grid.add_column(justify="center", ratio=1)
+    grid.add_row(f"[b]{title}")
+    grid.add_row(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    return Panel(
+        Align.center(grid),
+        style="white on rgb(25,25,25)",
+        border_style="rgb(50,50,50)",
+        padding=(1, 0),
+    )
+
+def display_terminal_info(ip_info):
+    table = create_styled_table()
+    ordered_keys = [
+        ("ip", "IP Address"),
+        ("country", "Country"),
+        ("region", "State/Region"),
+        ("city", "City"),
+        ("loc", "Coordinates"),
+        ("org", "Organization"),
+        ("timezone", "Time Zone"),
+        ("postal", "Postal Code")
+    ]
+    for key, label in ordered_keys:
+        if key in ip_info:
+            table.add_row(label, str(ip_info[key]))
+    console.print("\n")
+    console.print(Panel(table, border_style="rgb(50,50,50)"))
+    console.print("\n")
+
+def create_server_info() -> Panel:
+    table = Table.grid(padding=1, expand=True)
+    table.add_column(justify="center")
+    table.add_row("[b]Server Configuration")
+    table.add_row("[cyan]To access your server from a public URL, run the following in a new session: ")
+    table.add_row("[green]ssh -R 80:localhost:8080 nokey@localhost.run")
+    return Panel(
+        Align.center(table),
+        border_style="rgb(50,50,50)",
+        padding=(1, 2),
+    )
+
+def create_footer_info():
+    return Panel(
+        "Starting server at http://localhost:8080",
+        border_style="rgb(50,50,50)"
+    )
+
+@app.route('/')
+def index():
+    ip_address = request.headers.get('X-Forwarded-For', request.remote_addr)
+    ip_info = get_ip_info(ip_address)
+    
+    if "error" not in ip_info:
+        display_terminal_info(ip_info)
+    else:
+        console.print(
+            Panel(f"[red]Error: {ip_info['error']}", border_style="red", title="Error", title_align="left")
+        )
+    
+    return send_from_directory(os.path.join(os.getcwd(), 'site'), 'index.html')
+
+@app.route('/info')
+def get_info():
+    ip_address = request.headers.get('X-Forwarded-For', request.remote_addr)
+    ip_info = get_ip_info(ip_address)
+    
+    if "error" not in ip_info:
+        display_terminal_info(ip_info)
+        return "IP information has been displayed in the terminal."
+    else:
+        console.print(
+            Panel(f"[red]Error: {ip_info['error']}", border_style="red", title="Error", title_align="left")
+        )
+        return "Error fetching IP information. Please check the terminal for details."
+
+if __name__ == '__main__':
+    clear_screen()
+    console.print("\n")
+    console.print(create_header("IP Information Tracker"))
+    console.print(create_server_info())
+    console.print(create_footer_info())
+    
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger('werkzeug')
+    logger.setLevel(logging.INFO)
+
+    print("\n * Author: Wanz Xploit")
+    print(" * Tools: IP-LOC")
+    
+    app.run(host='0.0.0.0', port=8080)

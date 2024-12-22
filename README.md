@@ -1,9 +1,10 @@
+
 # 🌐 IP-LOC: TRACK IP LOCATION.
 
 ![IP-LOC Banner](https://raw.githubusercontent.com/wanzxploit/IP-LOC/refs/heads/main/banner.png)
 
 ![GitHub stars](https://img.shields.io/github/stars/wanzxploit/IP-LOC?style=social)
-![Version](https://img.shields.io/badge/version-1.5-brightgreen)
+![Version](https://img.shields.io/badge/version-2.0-brightgreen)
 ![Python](https://img.shields.io/badge/python-3.7+-blue)
 ![Platform](https://img.shields.io/badge/platform-linux%20%7C%20termux-lightgrey)
 
@@ -27,23 +28,12 @@ IP-LOC is an advanced IP geolocation tracking tool designed for cybersecurity re
 
 ## 🔍 IP Tracking Commands & Usage
 
-### Basic IP Tracking
+### Basic Usage
 ```bash
-python main.py
+make all
 # or
-python3 main.py
-```
-
-### Tracking Scenarios
-
-1. **Public IP Lookup**
-```
-Enter IP to track: 8.8.8.8  # Example Public IP
-```
-
-2. **Local Network IP**
-```
-Enter IP to track: 192.168.1.1
+make install
+make run
 ```
 
 ### Advanced IP Tracking Methods
@@ -122,22 +112,21 @@ Enter IP to track: 192.168.1.1
 
 ## 🔧 Installation Guide
 
-### Termux Installation
+### Installation Using Makefile
 ```bash
-pkg update && pkg upgrade -y
-pkg install python git -y
 git clone https://github.com/wanzxploit/IP-LOC.git
 cd IP-LOC
-pip install -r requirements.txt
+make all
 ```
 
-### Linux Installation
+### Running the Tool
 ```bash
-sudo apt update
-sudo apt install python3 python3-pip git -y
-git clone https://github.com/wanzxploit/IP-LOC.git
-cd IP-LOC
-pip3 install -r requirements.txt
+make run
+```
+
+### Clean Temporary Files
+```bash
+make clean
 ```
 
 ## 🤝 Contribution & Reporting
@@ -154,4 +143,4 @@ pip3 install -r requirements.txt
 
 ---
 
-**Version 1.5 | Crafted Responsibly 🌐**
+**Version 2.0 | Crafted Responsibly 🌐**
