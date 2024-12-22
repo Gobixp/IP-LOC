@@ -44,8 +44,8 @@ make run
 - Detailed network information
 
 #### 2. Batch IP Processing (Future Feature)
-- Multiple IP tracking
-- CSV/TXT file input support
+- Real time location tracking
+- Custom HTML Templates
 
 ## 🕵️ What Information Can Be Retrieved?
 
